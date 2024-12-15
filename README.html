@@ -53,19 +53,20 @@
             text-align: center;
             padding: 20px;
         }
-
     </style>
 </head>
 <body>
-        <!-- Welcome Screen -->
+    <!-- Welcome Screen -->
     <div id="welcomeScreen">
         <h1>Welcome to the Math Quiz</h1>
         <p>Test your skills and see how well you do!</p>
         <button class="btn" onclick="startQuiz()">Start Quiz</button>
     </div>
+    
     <div class="quiz-container">
         <h1>Math Quiz</h1>
-        <form id="quizForm">
+        <!-- Initially Hidden Quiz Form -->
+        <form id="quizForm" style="display: none;">
             <div class="question">
                 <p>1. What is 5 + 3?</p>
                 <div class="options">
@@ -97,34 +98,35 @@
         </form>
         <div id="result" class="result"></div>
     </div>
-<script>
-    function startQuiz() {
-        // Hide the welcome screen
-        document.getElementById('welcomeScreen').style.display = 'none';
-        // Show the quiz
-        document.getElementById('quizForm').style.display = 'block';
-    }
-
-    function calculateScore() {
-        const correctAnswers = {
-            q1: "8",
-            q2: "4",
-            q3: "50"
-        };
-        
-        let score = 0;
-        const form = document.getElementById("quizForm");
-        const resultDiv = document.getElementById("result");
-
-        for (const question in correctAnswers) {
-            const answer = form.elements[question].value;
-            if (answer === correctAnswers[question]) {
-                score++;
-            }
+    
+    <script>
+        function startQuiz() {
+            // Hide the welcome screen
+            document.getElementById('welcomeScreen').style.display = 'none';
+            // Show the quiz
+            document.getElementById('quizForm').style.display = 'block';
         }
 
-        resultDiv.innerHTML = `You scored ${score} out of ${Object.keys(correctAnswers).length}!`;
-    }
-</script>
+        function calculateScore() {
+            const correctAnswers = {
+                q1: "8",
+                q2: "4",
+                q3: "50"
+            };
+            
+            let score = 0;
+            const form = document.getElementById("quizForm");
+            const resultDiv = document.getElementById("result");
+
+            for (const question in correctAnswers) {
+                const answer = form.elements[question].value;
+                if (answer === correctAnswers[question]) {
+                    score++;
+                }
+            }
+
+            resultDiv.innerHTML = `You scored ${score} out of ${Object.keys(correctAnswers).length}!`;
+        }
+    </script>
 </body>
 </html>
