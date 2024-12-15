@@ -49,9 +49,20 @@
             font-size: 20px;
             margin-top: 20px;
         }
+        #welcomeScreen {
+            text-align: center;
+            padding: 20px;
+        }
+
     </style>
 </head>
 <body>
+        <!-- Welcome Screen -->
+    <div id="welcomeScreen">
+        <h1>Welcome to the Math Quiz</h1>
+        <p>Test your skills and see how well you do!</p>
+        <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
     <div class="quiz-container">
         <h1>Math Quiz</h1>
         <form id="quizForm">
@@ -86,27 +97,34 @@
         </form>
         <div id="result" class="result"></div>
     </div>
-    <script>
-        function calculateScore() {
-            const correctAnswers = {
-                q1: "8",
-                q2: "4",
-                q3: "50"
-            };
-            
-            let score = 0;
-            const form = document.getElementById("quizForm");
-            const resultDiv = document.getElementById("result");
+<script>
+    function startQuiz() {
+        // Hide the welcome screen
+        document.getElementById('welcomeScreen').style.display = 'none';
+        // Show the quiz
+        document.getElementById('quizForm').style.display = 'block';
+    }
 
-            for (const question in correctAnswers) {
-                const answer = form.elements[question].value;
-                if (answer === correctAnswers[question]) {
-                    score++;
-                }
+    function calculateScore() {
+        const correctAnswers = {
+            q1: "8",
+            q2: "4",
+            q3: "50"
+        };
+        
+        let score = 0;
+        const form = document.getElementById("quizForm");
+        const resultDiv = document.getElementById("result");
+
+        for (const question in correctAnswers) {
+            const answer = form.elements[question].value;
+            if (answer === correctAnswers[question]) {
+                score++;
             }
-
-            resultDiv.innerHTML = `You scored ${score} out of ${Object.keys(correctAnswers).length}!`;
         }
-    </script>
+
+        resultDiv.innerHTML = `You scored ${score} out of ${Object.keys(correctAnswers).length}!`;
+    }
+</script>
 </body>
 </html>
