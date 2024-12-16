@@ -158,20 +158,35 @@
 
     <script>
         function startQuiz() {
+            // Hide the welcome screen
             document.getElementById('welcomeScreen').style.display = 'none';
+            // Show the quiz
             document.getElementById('quizForm').style.display = 'block';
         }
 
         function calculateScore() {
-            const correctAnswers = { q1: "8", q2: "4", q3: "50" };
+            const correctAnswers = {
+                q1: "8",
+                q2: "4",
+                q3: "50"
+            };
+            
             let score = 0;
             const form = document.getElementById("quizForm");
+            const resultDiv = document.getElementById("result");
+
+            // Iterate through each question
             for (const question in correctAnswers) {
-                const answer = form.elements[question]?.value;
-                if (answer === correctAnswers[question]) score++;
+                const selectedOption = form.querySelector(`input[name="${question}"]:checked`);
+                
+                // If a valid answer is selected
+                if (selectedOption && selectedOption.value === correctAnswers[question]) {
+                    score++;
+                }
             }
-            document.getElementById("result").innerHTML = `You scored ${score} out of ${Object.keys(correctAnswers).length}!`;
+
+            resultDiv.innerHTML = `You scored ${score} out of ${Object.keys(correctAnswers).length}!`;
         }
     </script>
-</body>
+    </body>
 </html>
