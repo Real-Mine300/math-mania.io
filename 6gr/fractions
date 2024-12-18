@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; /* Remove default margin for consistent layout */
+            padding: 0; /* Remove padding */
+            background-color: #f4f4f9;
+        }
+
+        /* Flex container for sidebar and main content */
+        .container {
+            display: flex;
+            height: 100vh; /* Full viewport height */
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            background-color: #eaf3ff;
+            width: 20%; /* Fixed width for sidebar */
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+
+        .sidebar h2 {
+            color: #0056b3;
+            margin-bottom: 15px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        .sidebar ul li a:hover {
+            color: #0056b3;
+        }
+
+        /* Main content styles */
+        .main-content {
+            flex: 1; /* Take up remaining space */
+            padding: 20px;
+            overflow-y: auto; /* Allow scrolling if content overflows */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        #welcomeScreen {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Sidebar</h2>
+            <ul>
+                <li><a href="https://real-mine300.github.io/math-mania.io/home.html">Home</a></li>
+                <li><a href="https://real-mine300.github.io/math-mania.io/About.html">About</a></li>
+                <li><a href="https://real-mine300.github.io/math-mania.io/Help.html">Help</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen">
+                <h1>Welcome to the Math Quiz</h1>
+                <p>Test your skills and see how well you do!</p>
+                <button class="btn" onclick="startQuiz()">Start Quiz</button>
+            </div>
+            <div id="quizContainer" class="quiz-container" style="display: none;">
+                <h1>Math Quiz</h1>
+                <form id="quizForm"></form>
+                <button class="btn" onclick="calculateScore()">Submit</button>
+                <div id="result" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is 5 + 3?",
+                options: ["6", "7", "8", "9"],
+                correct: "8"
+            },
+            {
+                question: "What is the square root of 16?",
+                options: ["2", "4", "8", "6"],
+                correct: "4"
+            },
+            {
+                question: "What is 25% of 200?",
+                options: ["25", "50", "75", "100"],
+                correct: "50"
+            },
+            {
+                question: "What is 12 × 8?",
+                options: ["80", "96", "100", "120"],
+                correct: "96"
+            },
+            {
+                question: "What is 144 ÷ 12?",
+                options: ["10", "11", "12", "13"],
+                correct: "12"
+            }
+        ];
+
+        function startQuiz() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+
+            const quizForm = document.getElementById('quizForm');
+            quizForm.innerHTML = ""; // Clear any existing content
+
+            questions.forEach((q, index) => {
+                const questionHTML = `
+                    <div class="question">
+                        <p>${index + 1}. ${q.question}</p>
+                        <div class="options">
+                            ${q.options.map(option => `
+                                <label>
+                                    <input type="radio" name="q${index}" value="${option}">
+                                    ${option}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                quizForm.innerHTML += questionHTML;
+            });
+        }
+
+        function calculateScore() {
+            let score = 0;
+            const resultDiv = document.getElementById("result");
+
+            questions.forEach((q, index) => {
+                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selectedOption && selectedOption.value === q.correct) {
+                    score++;
+                }
+            });
+
+            resultDiv.innerHTML = `You scored ${score} out of ${questions.length}!`;
+        }
+    </script>
+    </body>
+</html>
