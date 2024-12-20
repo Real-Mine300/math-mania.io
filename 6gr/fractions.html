@@ -98,6 +98,10 @@
         #welcomeScreen {
             text-align: center;
         }
+
+        #sixthGradeWeb {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -107,8 +111,14 @@
             <h2>Sidebar</h2>
             <ul>
                 <li><a href="https://real-mine300.github.io/math-mania.io/home.html">Home</a></li>
-                <li><a href="https://real-mine300.github.io/math-mania.io/About.html">About</a></li>
-                <li><a href="https://real-mine300.github.io/math-mania.io/Help.html">Help</a></li>
+                <li><a href="https://real-mine300.github.io/math-mania.io/about.html">About</a></li>
+                <li><a href="https://real-mine300.github.io/math-mania.io/help.html">Help</a></li>
+                <li><a onclick="sixthGradeWeb()">6th Grade</a></li>
+                <ul id="sixthGradeWeb">
+                    <li>&emsp<a href="https://real-mine300.github.io/math-mania.io/6gr/fractions.html">Fractions<a/></li>
+                    <li>&emsp<a href="https://real-mine300.github.io/math-mania.io/6gr/geometry.html">Geometry<a/></li>
+                    <li>&emsp<a href="https://real-mine300.github.io/math-mania.io/6gr/percentages.html">percentages<a/></li>
+                </ul>
             </ul>
         </div>
         <!-- Main Content -->
@@ -129,6 +139,9 @@
     </div>
 
     <script>
+        function sixthGradeWeb() {
+            document.getElementById('sixthGradeWeb').style.display = 'block';
+        };
         const questions = [
             {
                 question: "What is 5% of 120?",
