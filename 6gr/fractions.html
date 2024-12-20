@@ -56,6 +56,7 @@
             padding: 20px;
             overflow-y: auto; /* Allow scrolling if content overflows */
 			display: inline-block;
+			width: 70vh;
         }
 
         h1 {
@@ -116,9 +117,9 @@
                 <li><a href="https://real-mine300.github.io/math-mania.io/help.html">Help</a></li>
                 <li><a href="javascript:sixthGradeWeb();">6th Grade</a></li>
                 <ul id="sixthGradeWeb">
-                    <li><a href="https://real-mine300.github.io/math-mania.io/6gr/fractions.html"><pre>   </pre>Fractions<a/></li>
-                    <li><a href="https://real-mine300.github.io/math-mania.io/6gr/geometry.html"><pre>   </pre>Geometry<a/></li>
-                    <li><a href="https://real-mine300.github.io/math-mania.io/6gr/percentages.html"><pre>   </pre>Percentages<a/></li>
+                    <li><a href="https://real-mine300.github.io/math-mania.io/6gr/fractions.html">&nbsp;Fractions<a/></li>
+                    <li><a href="https://real-mine300.github.io/math-mania.io/6gr/geometry.html">&nbsp;Geometry<a/></li>
+                    <li><a href="https://real-mine300.github.io/math-mania.io/6gr/percentages.html">&nbsp;Percentages<a/></li>
                 </ul>
             </ul>
         </div>
@@ -141,7 +142,12 @@
 
     <script>
         function sixthGradeWeb() {
-            document.getElementById('sixthGradeWeb').style.display = 'block';
+			const sixthGradeWebDisplay = document.getElementById('sixthGradeWeb').style.display;
+			if (sixthGradeWebDisplay === 'block'){
+				sixthGradeWebDisplay = 'none';
+			}else{
+				sixthGradeWebDisplay = 'block';
+			}
         };
         const questions = [
             {
