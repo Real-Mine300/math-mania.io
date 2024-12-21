@@ -11,19 +11,18 @@
             padding: 0; /* Remove padding */
             background-color: #f4f4f9;
         }
-
-        /* Flex container for sidebar and main content */
-        .container {
-            display: flex;
-            height: 100vh; /* Full viewport height */
-        }
+		
+		/* Flex container for sidebar and main content */
+		.container {
+		    display: flex;
+		    height: 100vh; /* Full viewport height */
+		    overflow: hidden; /* Prevent unexpected scrollbars */
+		}
 		
 		/* Sidebar styles */
 		.sidebar {
 		    background-color: #eaf3ff;
-		    width: 20%; /* Maintain 20% width */
-		    min-width: 200px; /* Prevent it from shrinking too much */
-		    max-width: 250px; /* Cap the maximum width */
+		    flex: 0 0 250px; /* Fixed width of 250px */
 		    padding: 20px;
 		    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 		    font-size: 16px;
@@ -31,19 +30,19 @@
 		
 		/* Main content styles */
 		.main-content {
-		    flex: 1; /* Allow it to take up the remaining space */
+		    flex: 1; /* Fill the remaining space */
+		    display: flex; /* Flexbox for content alignment */
+		    flex-direction: column; /* Ensure content stacks vertically */
 		    padding: 20px;
-		    overflow-y: auto; /* Enable scrolling for overflow */
+		    overflow-y: auto; /* Allow vertical scrolling for content overflow */
 		    background-color: #f4f4f9;
-		    display: flex; /* Added to center the quiz */
-		    justify-content: center; /* Center horizontally */
-		    align-items: center; /* Center vertically */
+		    align-items: center; /* Center horizontally */
 		}
 		
 		/* Quiz container styles */
 		.quiz-container {
-		    width: 100%; /* Make it fill the available width */
-		    max-width: 800px; /* Prevent it from becoming too wide */
+		    width: 100%; /* Take full available width */
+		    max-width: 800px; /* Limit the width for readability */
 		    padding: 20px;
 		    background: #fff;
 		    border-radius: 10px;
