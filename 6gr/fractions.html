@@ -17,15 +17,39 @@
             display: flex;
             height: 100vh; /* Full viewport height */
         }
-
-        /* Sidebar styles */
-        .sidebar {
-            background-color: #eaf3ff;
-            width: 20%; /* Fixed width for sidebar */
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
-        }
+		
+		/* Sidebar styles */
+		.sidebar {
+		    background-color: #eaf3ff;
+		    width: 20%; /* Maintain 20% width */
+		    min-width: 200px; /* Prevent it from shrinking too much */
+		    max-width: 250px; /* Cap the maximum width */
+		    padding: 20px;
+		    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		    font-size: 16px;
+		}
+		
+		/* Main content styles */
+		.main-content {
+		    flex: 1; /* Allow it to take up the remaining space */
+		    padding: 20px;
+		    overflow-y: auto; /* Enable scrolling for overflow */
+		    background-color: #f4f4f9;
+		    display: flex; /* Added to center the quiz */
+		    justify-content: center; /* Center horizontally */
+		    align-items: center; /* Center vertically */
+		}
+		
+		/* Quiz container styles */
+		.quiz-container {
+		    width: 100%; /* Make it fill the available width */
+		    max-width: 800px; /* Prevent it from becoming too wide */
+		    padding: 20px;
+		    background: #fff;
+		    border-radius: 10px;
+		    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+		
 
         .sidebar h2 {
             color: #0056b3;
@@ -54,25 +78,8 @@
             text-align: center;
             color: #333;
         }
-        /* Main content styles */
-        .main-content {
-            flex: 1; /* Take up the remaining space */
-            padding: 20px;
-            overflow-y: auto; /* Allow scrolling if content overflows */
-            background-color: #fff; /* Optional for clarity */
-        }
-        
-        /* Quiz container styles */
-        .quiz-container {
-            width: 80%; /* Adjust width to occupy more space */
-            max-width: 1000px; /* Optional: set a larger max width */
-            margin: 0 auto; /* Center horizontally */
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .btn {
+
+	    .btn {
             display: block;
             width: 100%;
             padding: 10px;
