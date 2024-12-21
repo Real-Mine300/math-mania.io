@@ -142,91 +142,98 @@
 	    </div>
 	
 	    <script>
-            function sixthGradeWeb() {
-                let element = document.getElementById('sixthGradeWeb');
-                let sixthGradeWebDisplay = element.style.display;
-                if (sixthGradeWebDisplay === 'block') {
-                    element.style.display = 'none';
-                } else {
-                    element.style.display = 'block';
-                }
-            };
-	        const questions = [
-	            {
-	                question: "What is 5% of 120?",
-	                options: ["6", "7", "8", "9"],
-	                correct: "6"
-	            },
-	            {
-	                question: "What is 20% of 20?",
-	                options: ["2", "4", "8", "6"],
-	                correct: "4"
-	            },
-	            {
-	                question: "What is 25% of 200?",
-	                options: ["25", "50", "75", "100"],
-	                correct: "50"
-	            },
-	            {
-	                question: "What is 33.33% of 27?",
-	                options: ["9", "8", "11", "10"],
-	                correct: "9"
-	            },
-	            {
-	                question: "What is 10% 120?",
-	                options: ["10", "11", "12", "13"],
-	                correct: "12"
-	            },
-	            {
-	                question: "What is 25% of 480",
-	                options: ["125", "110", "120", "130"],
-	                correct: "120"
-	            },
-	            {
-	                question: "What is 25% of 40",
-	                options: ["9", "10", "8", "20"],
-	                correct: "10"
-	            }
-	        ];
-	
-	        function startQuiz() {
-	            document.getElementById('welcomeScreen').style.display = 'none';
-	            document.getElementById('quizContainer').style.display = 'block';
-	
-	            const quizForm = document.getElementById('quizForm');
-	            quizForm.innerHTML = ""; // Clear any existing content
-	
-	            questions.forEach((q, index) => {
-	                const questionHTML = 
-	                    <div class="question">
-	                        <p>${index + 1}. ${q.question}</p>
-	                        <div class="options">
-	                            ${q.options.map(option => 
-	                                <label>
-	                                    <input type="radio" name="q${index}" value="${option}">
-	                                    ${option}
-	                                </label>
-	                            ).join('')}
-	                        </div>
-	                    </div>
-	                ;
-	                quizForm.innerHTML += questionHTML;
-	            });
-	        }
-	
-	        function calculateScore() {
-	            let score = 0;
-	            const resultDiv = document.getElementById("result");
-	
-	            questions.forEach((q, index) => {
-	                const selectedOption = document.querySelector(input[name="q${index}"]:checked);
-	                if (selectedOption && selectedOption.value === q.correct) {
-	                    score++;
-	                }
-	            });
-	
-	            resultDiv.innerHTML = You scored ${score} out of ${questions.length}!;
-	        }
-	    </script>
+			// Function to toggle the 6th Grade Web links
+			function sixthGradeWeb() {
+			    let element = document.getElementById('sixthGradeWeb');
+			    if (element.style.display === 'none' || element.style.display === '') {
+			        element.style.display = 'block';
+			    } else {
+			        element.style.display = 'none';
+			    }
+			}
+			
+			// Array of quiz questions
+			const questions = [
+			    {
+			        question: "What is 5% of 120?",
+			        options: ["6", "7", "8", "9"],
+			        correct: "6"
+			    },
+			    {
+			        question: "What is 20% of 20?",
+			        options: ["2", "4", "8", "6"],
+			        correct: "4"
+			    },
+			    {
+			        question: "What is 25% of 200?",
+			        options: ["25", "50", "75", "100"],
+			        correct: "50"
+			    },
+			    {
+			        question: "What is 33.33% of 27?",
+			        options: ["9", "8", "11", "10"],
+			        correct: "9"
+			    },
+			    {
+			        question: "What is 10% of 120?",
+			        options: ["10", "11", "12", "13"],
+			        correct: "12"
+			    },
+			    {
+			        question: "What is 25% of 480?",
+			        options: ["125", "110", "120", "130"],
+			        correct: "120"
+			    },
+			    {
+			        question: "What is 25% of 40?",
+			        options: ["9", "10", "8", "20"],
+			        correct: "10"
+			    }
+			];
+			
+			// Function to start the quiz
+			function startQuiz() {
+			    document.getElementById('welcomeScreen').style.display = 'none';
+			    document.getElementById('quizContainer').style.display = 'block';
+			
+			    const quizForm = document.getElementById('quizForm');
+			    quizForm.innerHTML = ""; // Clear any existing content
+			
+			    // Generate quiz questions dynamically
+			    questions.forEach((q, index) => {
+			        const questionHTML = `
+			            <div class="question">
+			                <p>${index + 1}. ${q.question}</p>
+			                <div class="options">
+			                    ${q.options.map(option => `
+			                        <label>
+			                            <input type="radio" name="q${index}" value="${option}">
+			                            ${option}
+			                        </label>
+			                    `).join('')}
+			                </div>
+			            </div>
+			        `;
+			        quizForm.innerHTML += questionHTML;
+			    });
+			}
+			
+			// Function to calculate the score
+			function calculateScore() {
+			    let score = 0;
+			    const resultDiv = document.getElementById("result");
+			
+			    // Check selected answers
+			    questions.forEach((q, index) => {
+			        const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+			        if (selectedOption && selectedOption.value === q.correct) {
+			            score++;
+			        }
+			    });
+			
+			    // Display the result
+			    resultDiv.innerHTML = `You scored ${score} out of ${questions.length}!`;
+			}
+		</style>
     </body>
 </html>
