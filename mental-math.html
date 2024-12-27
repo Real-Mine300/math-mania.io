@@ -27,6 +27,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
         }
 
         h1 {
@@ -51,7 +52,7 @@
             border-radius: 5px;
         }
 
-        .btn {
+        .btn, .restart-btn {
             margin-top: 15px;
             padding: 12px 20px;
             background-color: #007BFF;
@@ -61,7 +62,7 @@
             cursor: pointer;
         }
 
-        .btn:hover {
+        .btn:hover, .restart-btn:hover {
             background-color: #0056b3;
         }
 
@@ -86,12 +87,17 @@
         }
 
         .log-history {
-            margin-top: 20px;
+            position: absolute;
+            right: 0;
+            top: 50px;
+            width: 200px;
             text-align: left;
-            max-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
             font-size: 14px;
             margin-left: 30px;
+            padding-left: 15px;
+            border-left: 2px solid #ccc;
         }
 
         .log-history p {
@@ -179,6 +185,7 @@
         <input type="text" id="answerInput" placeholder="Your Answer" disabled>
         <button class="btn" id="startButton">Start</button>
         <button class="skip-btn" id="skipButton">Skip</button>
+        <button class="restart-btn" id="restartButton">Restart</button>
 
         <div class="themes">
             <label for="theme">Choose Theme: </label>
@@ -201,6 +208,7 @@
         const timeElement = document.getElementById("time");
         const startButton = document.getElementById("startButton");
         const skipButton = document.getElementById("skipButton");
+        const restartButton = document.getElementById("restartButton");
         const themeSelector = document.getElementById("theme");
         const personalBestElement = document.getElementById("personalBest");
         const streakElement = document.getElementById("streak");
@@ -258,6 +266,8 @@
             nextQuestion();
             startTime = Date.now();
             timerInterval = setInterval(updateTimer, 1000);
+            answerInput.disabled = false; // Enable input
+            answerInput.focus(); // Focus on the input
         }
 
         // Display the next question
@@ -265,94 +275,65 @@
             const difficulty = Math.floor(score / 5) + 10;
             currentQuestion = generateQuestion(difficulty);
             questionElement.textContent = currentQuestion.questionText;
-            answerInput.value = "";
-            answerInput.focus();
+            answerInput.value = ""; // Reset the input field
+            answerInput.focus(); // Focus on the input for the next question
         }
 
         // Update the timer
         function updateTimer() {
             timeLeft--;
-            timeElement.textContent = timeLeft;
+            timeElement.textContent = `Time Left: ${timeLeft}s`; // Show timer
 
             if (timeLeft <= 0) {
-                logSession('timeout');
                 endGame();
             }
         }
 
         // Check the user's answer
-        answerInput.addEventListener("keypress", (event) => {
-            if (event.key === "Enter") {
+        answerInput.addEventListener("input", (event) => {
+            if (event.key === "Enter" && answerInput.value.trim() !== "") {
                 const userAnswer = parseFloat(answerInput.value);
-                const timeTaken = Math.max(1, Date.now() - startTime) / 1000; // In seconds
+                const timeTaken = (Date.now() - startTime) / 1000; // Time taken in seconds
+
                 if (userAnswer === currentQuestion.answer) {
-                    score += Math.max(1, 10 - timeTaken); // Points for speed
+                    score = Math.max(0, score + Math.round(timeLeft * 10)); // Prevent negative score
                     streak++;
-                    logSession('correct', timeTaken);
-                } else if (userAnswer === "") {
-                    logSession('skipped', timeTaken);
+                    if (streak > bestStreak) bestStreak = streak;
+                    sessionHistory.push({ result: 'correct', timeTaken, points: Math.round(timeLeft * 10) });
                 } else {
                     streak = 0;
-                    logSession('incorrect', timeTaken);
+                    sessionHistory.push({ result: 'incorrect', timeTaken, points: 0 });
                 }
-                scoreElement.textContent = Math.round(score * 10);
+
+                scoreElement.textContent = score;
                 streakElement.textContent = streak;
+                personalBestElement.textContent = personalBest;
+                personalBestStreakElement.textContent = bestStreak;
+
                 nextQuestion();
-                startTime = Date.now();
+                answerInput.value = ""; // Reset input
             }
         });
 
         // Skip the current question
         skipButton.addEventListener("click", () => {
-            score -= 10;
-            timeLeft -= 2;
-            logSession('skipped');
+            score = Math.max(0, score - 10); // Deduct 10 points but prevent negative score
+            timeLeft -= 2; // Deduct 2 seconds for skipping
+            sessionHistory.push({ result: 'skipped', timeTaken: 0, points: -10 });
+
+            scoreElement.textContent = score;
             nextQuestion();
         });
 
-        // Log session history
-        function logSession(result, timeTaken = 0) {
-            let logMessage = '';
-            let logClass = '';
-
-            if (result === 'correct') {
-                logMessage = `Correct: ${currentQuestion.questionText} - Time: ${timeTaken.toFixed(2)}s - +${Math.max(1, 10 - timeTaken)} points`;
-                logClass = getColorForTime(timeTaken);
-            } else if (result === 'incorrect') {
-                logMessage = `Incorrect: ${currentQuestion.questionText} - Time: ${timeTaken.toFixed(2)}s`;
-                logClass = 'incorrect';
-            } else if (result === 'skipped') {
-                logMessage = `Skipped: ${currentQuestion.questionText} - Time: ${timeTaken.toFixed(2)}s`;
-                logClass = 'skipped';
-            } else if (result === 'timeout') {
-                logMessage = `Timeout: ${currentQuestion.questionText}`;
-                logClass = 'timeout';
-            }
-
-            const logEntry = document.createElement('p');
-            logEntry.textContent = logMessage;
-            logEntry.className = logClass;
-            logHistoryElement.appendChild(logEntry);
-            sessionHistory.push(logMessage);
-        }
-
-        // Determine the color based on time taken
-        function getColorForTime(timeTaken) {
-            if (timeTaken <= 2) {
-                return 'quick'; // Green
-            } else if (timeTaken <= 4) {
-                return 'fast'; // Yellow
-            } else if (timeTaken <= 6) {
-                return 'some-time'; // Orange
-            } else {
-                return 'slow'; // Red
-            }
-        }
+        // Restart the game
+        restartButton.addEventListener("click", () => {
+            startGame(); // Restart game
+        });
 
         // End the game
         function endGame() {
             clearInterval(timerInterval);
-            questionElement.textContent = `Game Over! Final Score: ${Math.round(score * 10)}`;
+            questionElement.textContent = `Game Over! Final Score: ${score}`;
             if (score > personalBest) {
                 personalBest = score;
                 personalBestElement.textContent = personalBest;
@@ -361,8 +342,8 @@
                 bestStreak = streak;
                 personalBestStreakElement.textContent = bestStreak;
             }
-            startButton.disabled = false;
-            answerInput.disabled = true;
+            answerInput.disabled = true; // Disable input
+            startButton.disabled = false; // Enable start button
         }
 
         // Start button click
@@ -370,4 +351,3 @@
     </script>
 </body>
 </html>
-
