@@ -9,236 +9,332 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-        }
-
-        .container {
             display: flex;
-            flex-direction: row;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
+            background-color: #f4f4f9;
+            transition: background-color 0.3s ease;
         }
 
-        .main {
-            flex: 2;
-            padding: 20px;
-        }
-
-        .log {
-            flex: 1;
-            background-color: #eaf3ff;
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .log h2 {
-            color: #0056b3;
+        .game-container {
             text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .score, .timer {
+            font-size: 18px;
+            margin: 10px 0;
         }
 
         .question {
-            font-size: 2rem;
-            text-align: center;
+            font-size: 22px;
             margin: 20px 0;
         }
 
-        .score {
-            font-size: 1.5rem;
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        .timer {
-            font-size: 1.2rem;
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        .input-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .input-container input {
-            font-size: 1.2rem;
+        input[type="text"] {
+            width: 80%;
             padding: 10px;
-            margin-right: 10px;
-            border-radius: 5px;
+            font-size: 16px;
             border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
-        .input-container button {
-            font-size: 1rem;
+        .btn {
+            margin-top: 10px;
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        .input-container button:hover {
+        .btn:hover {
             background-color: #0056b3;
         }
 
-        .log-entry {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
+        .themes select {
+            margin-top: 10px;
         }
 
-        .log-entry.green {
-            background-color: #d4edda;
-            color: #155724;
+        body.dark-theme {
+            background-color: #333;
         }
 
-        .log-entry.yellow {
-            background-color: #fff3cd;
-            color: #856404;
+        .game-container.dark-theme {
+            background: #444;
+            color: white;
         }
 
-        .log-entry.orange {
-            background-color: #ffeeba;
-            color: #856404;
+        body.blue-theme {
+            background-color: #e0f7fa;
         }
 
-        .log-entry.red {
-            background-color: #f8d7da;
-            color: #721c24;
+        .game-container.blue-theme {
+            background: #b2ebf2;
+            color: #00796b;
+        }
+
+        body.green-theme {
+            background-color: #dcedc8;
+        }
+
+        .game-container.green-theme {
+            background: #c5e1a5;
+            color: #1b5e20;
+        }
+
+        body.pink-theme {
+            background-color: #fce4ec;
+        }
+
+        .game-container.pink-theme {
+            background: #f8bbd0;
+            color: #880e4f;
+        }
+
+        .log-history {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+
+        .log-history p {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Color coding for different times */
+        .quick {
+            background-color: #d4edda; /* Green */
+        }
+
+        .fast {
+            background-color: #fff3cd; /* Yellow */
+        }
+
+        .some-time {
+            background-color: #ffecb3; /* Orange */
+        }
+
+        .slow {
+            background-color: #f8d7da; /* Red */
+        }
+
+        .incorrect {
+            background-color: #f8d7da; /* Red */
+        }
+
+        .skipped {
+            background-color: #fff3cd; /* Yellow */
+        }
+
+        .timeout {
+            background-color: #f1c2c2; /* Light Red */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="main">
-            <div class="question" id="question"></div>
-            <div class="score" id="score">Score: 0</div>
-            <div class="timer" id="timer">Time Left: 10s</div>
-            <div class="input-container">
-                <input type="number" id="answerInput" placeholder="Enter your answer">
-                <button onclick="submitAnswer()">Submit</button>
-                <button onclick="skipQuestion()">Skip</button>
-            </div>
+    <div class="game-container">
+        <h1>Mental Math Challenge</h1>
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="timer">Time Left: <span id="time">10</span>s</div>
+        <div class="question" id="question">Press Start to Begin</div>
+        <input type="text" id="answerInput" placeholder="Your Answer" disabled>
+        <button class="btn" id="startButton">Start</button>
+
+        <div class="themes">
+            <label for="theme">Choose Theme: </label>
+            <select id="theme">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="pink">Pink</option>
+            </select>
         </div>
-        <div class="log">
-            <h2>Question Log</h2>
-            <div id="logContainer"></div>
+
+        <div id="stats">
+            <h3>Personal Best</h3>
+            <p>Score: <span id="personalBest">0</span></p>
+            <p>Streak: <span id="streak">0</span></p>
         </div>
+
+        <!-- Log History -->
+        <div class="log-history" id="logHistory"></div>
     </div>
 
     <script>
-        let score = 0;
-        let timer = 10;
-        let interval;
-        let startTime;
-        let logData = [];
         const questionElement = document.getElementById("question");
-        const scoreElement = document.getElementById("score");
-        const timerElement = document.getElementById("timer");
-        const logContainer = document.getElementById("logContainer");
         const answerInput = document.getElementById("answerInput");
+        const scoreElement = document.getElementById("score");
+        const timeElement = document.getElementById("time");
+        const startButton = document.getElementById("startButton");
+        const themeSelector = document.getElementById("theme");
+        const personalBestElement = document.getElementById("personalBest");
+        const streakElement = document.getElementById("streak");
+        const logHistoryElement = document.getElementById("logHistory");
 
-        let currentQuestion = generateQuestion();
+        let score = 0;
+        let timeLeft = 10;
+        let currentQuestion = {};
+        let streak = 0;
+        let personalBest = 0;
+        let sessionHistory = [];
+        let timerInterval;
+        let startTime;
 
-        function startTimer() {
-            timer = 10;
-            updateTimer();
-            clearInterval(interval);
-            interval = setInterval(() => {
-                timer--;
-                updateTimer();
-                if (timer <= 0) {
-                    clearInterval(interval);
-                    logEntry("Time's up!", "red");
-                    score -= 20;
-                    updateScore();
-                    nextQuestion();
-                }
-            }, 1000);
-        }
-
-        function updateTimer() {
-            timerElement.textContent = `Time Left: ${timer}s`;
-        }
-
-        function updateScore() {
-            scoreElement.textContent = `Score: ${score}`;
-        }
-
-        function logEntry(message, colorClass) {
-            const entry = document.createElement("div");
-            entry.className = `log-entry ${colorClass}`;
-            entry.textContent = message;
-            logContainer.prepend(entry);
-            if (logContainer.childElementCount > 5) {
-                logContainer.removeChild(logContainer.lastChild);
-            }
-        }
-
-        function generateQuestion() {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
-            questionElement.textContent = `What is ${num1} x ${num2}?`;
-            return num1 * num2;
-        }
-
-        function submitAnswer() {
-            const userAnswer = parseInt(answerInput.value);
-            const endTime = Date.now();
-            const timeTaken = (endTime - startTime) / 1000;
-
-            clearInterval(interval);
-
-            if (userAnswer === currentQuestion) {
-                let colorClass = "green";
-                let points = 10;
-                if (timeTaken <= 2) {
-                    points = 10;
-                    timer += 1;
-                } else if (timeTaken <= 4) {
-                    points = 5;
-                    timer += 0.5;
-                    colorClass = "yellow";
-                } else {
-                    points = 1;
-                    colorClass = "orange";
-                }
-                score += points;
-                logEntry(`Correct! (${timeTaken.toFixed(2)}s, +${points})`, colorClass);
-            } else {
-                logEntry(`Wrong answer!`, "red");
-            }
-
-            updateScore();
-            nextQuestion();
-        }
-
-        function skipQuestion() {
-            clearInterval(interval);
-            score -= 20;
-            timer -= 1;
-            logEntry("Skipped question", "orange");
-            updateScore();
-            nextQuestion();
-        }
-
-        function nextQuestion() {
-            answerInput.value = "";
-            currentQuestion = generateQuestion();
-            startTime = Date.now();
-            startTimer();
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            answerInput.addEventListener("keydown", (event) => {
-                if (event.key === "Enter") {
-                    submitAnswer();
-                }
-            });
-            nextQuestion();
+        // Change theme
+        themeSelector.addEventListener('change', (event) => {
+            document.body.className = event.target.value + '-theme';
         });
+
+        // Generate a math question (Addition, Subtraction, Multiplication, Division, Percentage)
+        function generateQuestion(difficulty) {
+            const num1 = Math.floor(Math.random() * difficulty) + 1;
+            const num2 = Math.floor(Math.random() * difficulty) + 1;
+            const operators = ["+", "-", "*", "/", "%"];
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+
+            let questionText, answer;
+
+            if (operator === "%") {
+                answer = (num1 / 100) * num2;
+                questionText = `${num1} is what percent of ${num2}?`;
+            } else if (operator === "/") {
+                answer = num2 !== 0 ? (num1 / num2) : num1;
+                questionText = `${num1} ÷ ${num2}`;
+            } else {
+                answer = eval(`${num1} ${operator} ${num2}`);
+                questionText = `${num1} ${operator} ${num2}`;
+            }
+
+            return { questionText, answer };
+        }
+
+        // Start the game
+        function startGame() {
+            score = 0;
+            timeLeft = 10;
+            streak = 0;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            streakElement.textContent = streak;
+            startButton.disabled = true;
+            answerInput.disabled = false;
+            answerInput.value = "";
+            answerInput.focus();
+            sessionHistory = []; // Reset session log
+
+            nextQuestion();
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Display the next question
+        function nextQuestion() {
+            const difficulty = Math.floor(score / 5) + 10;
+            currentQuestion = generateQuestion(difficulty);
+            questionElement.textContent = currentQuestion.questionText;
+        }
+
+        // Update the timer
+        function updateTimer() {
+            timeLeft--;
+            timeElement.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                logSession('timeout');
+                endGame();
+            }
+        }
+
+        // Check the user's answer
+        answerInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                const userAnswer = parseFloat(answerInput.value);
+                const timeTaken = Math.max(1, Date.now() - startTime) / 1000; // In seconds
+                if (userAnswer === currentQuestion.answer) {
+                    score += Math.max(1, 10 - timeTaken); // Points for speed
+                    streak++;
+                    logSession('correct', timeTaken);
+                } else if (userAnswer === "") {
+                    logSession('skipped', timeTaken);
+                } else {
+                    streak = 0;
+                    logSession('incorrect', timeTaken);
+                }
+                scoreElement.textContent = score;
+                streakElement.textContent = streak;
+                nextQuestion();
+                startTime = Date.now();
+            }
+        });
+
+        // Log session history
+        function logSession(result, timeTaken = 0) {
+            let logMessage = '';
+            let logClass = '';
+
+            if (result === 'correct') {
+                logMessage = `Correct: ${currentQuestion.questionText} - Time: ${timeTaken.toFixed(2)}s - +${Math.max(1, 10 - timeTaken)} points`;
+                logClass = getColorForTime(timeTaken);
+            } else if (result === 'incorrect') {
+                logMessage = `Incorrect: ${currentQuestion.questionText} - Time: ${timeTaken.toFixed(2)}s`;
+                logClass = 'incorrect';
+            } else if (result === 'skipped') {
+                logMessage = `Skipped: ${currentQuestion.questionText} - Time: ${timeTaken.toFixed(2)}s`;
+                logClass = 'skipped';
+            } else if (result === 'timeout') {
+                logMessage = `Timeout: ${currentQuestion.questionText}`;
+                logClass = 'timeout';
+            }
+
+            const logEntry = document.createElement('p');
+            logEntry.textContent = logMessage;
+            logEntry.className = logClass;
+            logHistoryElement.appendChild(logEntry);
+            sessionHistory.push(logMessage);
+        }
+
+        // Determine the color based on time taken
+        function getColorForTime(timeTaken) {
+            if (timeTaken <= 2) {
+                return 'quick'; // Green
+            } else if (timeTaken <= 4) {
+                return 'fast'; // Yellow
+            } else if (timeTaken <= 6) {
+                return 'some-time'; // Orange
+            } else {
+                return 'slow'; // Red
+            }
+        }
+
+        // End the game
+        function endGame() {
+            clearInterval(timerInterval);
+            startButton.disabled = false;
+            answerInput.disabled = true;
+            if (score > personalBest) {
+                personalBest = score;
+                personalBestElement.textContent = personalBest;
+            }
+        }
+
+        // Start button click
+        startButton.addEventListener("click", startGame);
     </script>
 </body>
 </html>
-
-
