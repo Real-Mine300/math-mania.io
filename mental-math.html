@@ -6,7 +6,7 @@
     <title>Mental Math Challenge</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Comforta', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -20,37 +20,40 @@
         .game-container {
             text-align: center;
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         h1 {
             color: #333;
         }
 
-        .score, .timer {
-            font-size: 18px;
+        .score, .timer, .best-score, .streak, .best-streak {
+            font-size: 20px;
             margin: 10px 0;
         }
 
         .question {
-            font-size: 22px;
+            font-size: 28px;
             margin: 20px 0;
         }
 
         input[type="text"] {
             width: 80%;
-            padding: 10px;
-            font-size: 16px;
+            padding: 12px;
+            font-size: 18px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
         .btn {
-            margin-top: 10px;
-            padding: 10px 20px;
+            margin-top: 15px;
+            padding: 12px 20px;
             background-color: #007BFF;
             color: white;
             border: none;
@@ -62,44 +65,24 @@
             background-color: #0056b3;
         }
 
-        .themes select {
+        .skip-btn {
             margin-top: 10px;
-        }
-
-        body.dark-theme {
-            background-color: #333;
-        }
-
-        .game-container.dark-theme {
-            background: #444;
+            padding: 12px 20px;
+            background-color: #f44336;
             color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        body.blue-theme {
-            background-color: #e0f7fa;
+        .skip-btn:hover {
+            background-color: #e53935;
         }
 
-        .game-container.blue-theme {
-            background: #b2ebf2;
-            color: #00796b;
-        }
-
-        body.green-theme {
-            background-color: #dcedc8;
-        }
-
-        .game-container.green-theme {
-            background: #c5e1a5;
-            color: #1b5e20;
-        }
-
-        body.pink-theme {
-            background-color: #fce4ec;
-        }
-
-        .game-container.pink-theme {
-            background: #f8bbd0;
-            color: #880e4f;
+        .themes {
+            position: absolute;
+            top: 15px;
+            right: 20px;
         }
 
         .log-history {
@@ -108,6 +91,7 @@
             max-height: 200px;
             overflow-y: auto;
             font-size: 14px;
+            margin-left: 30px;
         }
 
         .log-history p {
@@ -144,16 +128,57 @@
         .timeout {
             background-color: #f1c2c2; /* Light Red */
         }
+
+        /* Theme styling */
+        body.dark-theme {
+            background-color: #333;
+        }
+
+        .game-container.dark-theme {
+            background: #444;
+            color: white;
+        }
+
+        body.blue-theme {
+            background-color: #e0f7fa;
+        }
+
+        .game-container.blue-theme {
+            background: #b2ebf2;
+            color: #00796b;
+        }
+
+        body.green-theme {
+            background-color: #dcedc8;
+        }
+
+        .game-container.green-theme {
+            background: #c5e1a5;
+            color: #1b5e20;
+        }
+
+        body.pink-theme {
+            background-color: #fce4ec;
+        }
+
+        .game-container.pink-theme {
+            background: #f8bbd0;
+            color: #880e4f;
+        }
+
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>Mental Math Challenge</h1>
         <div class="score">Score: <span id="score">0</span></div>
-        <div class="timer">Time Left: <span id="time">10</span>s</div>
+        <div class="best-score">Best Score: <span id="personalBest">0</span></div>
+        <div class="streak">Streak: <span id="streak">0</span></div>
+        <div class="best-streak">Best Streak: <span id="personalBestStreak">0</span></div>
         <div class="question" id="question">Press Start to Begin</div>
         <input type="text" id="answerInput" placeholder="Your Answer" disabled>
         <button class="btn" id="startButton">Start</button>
+        <button class="skip-btn" id="skipButton">Skip</button>
 
         <div class="themes">
             <label for="theme">Choose Theme: </label>
@@ -166,14 +191,7 @@
             </select>
         </div>
 
-        <div id="stats">
-            <h3>Personal Best</h3>
-            <p>Score: <span id="personalBest">0</span></p>
-            <p>Streak: <span id="streak">0</span></p>
-        </div>
-
-        <!-- Log History -->
-        <div class="log-history" id="logHistory"></div>
+        <div id="logHistory" class="log-history"></div>
     </div>
 
     <script>
@@ -182,15 +200,18 @@
         const scoreElement = document.getElementById("score");
         const timeElement = document.getElementById("time");
         const startButton = document.getElementById("startButton");
+        const skipButton = document.getElementById("skipButton");
         const themeSelector = document.getElementById("theme");
         const personalBestElement = document.getElementById("personalBest");
         const streakElement = document.getElementById("streak");
+        const personalBestStreakElement = document.getElementById("personalBestStreak");
         const logHistoryElement = document.getElementById("logHistory");
 
         let score = 0;
         let timeLeft = 10;
         let currentQuestion = {};
         let streak = 0;
+        let bestStreak = 0;
         let personalBest = 0;
         let sessionHistory = [];
         let timerInterval;
@@ -232,10 +253,6 @@
             scoreElement.textContent = score;
             timeElement.textContent = timeLeft;
             streakElement.textContent = streak;
-            startButton.disabled = true;
-            answerInput.disabled = false;
-            answerInput.value = "";
-            answerInput.focus();
             sessionHistory = []; // Reset session log
 
             nextQuestion();
@@ -248,6 +265,8 @@
             const difficulty = Math.floor(score / 5) + 10;
             currentQuestion = generateQuestion(difficulty);
             questionElement.textContent = currentQuestion.questionText;
+            answerInput.value = "";
+            answerInput.focus();
         }
 
         // Update the timer
@@ -276,11 +295,19 @@
                     streak = 0;
                     logSession('incorrect', timeTaken);
                 }
-                scoreElement.textContent = score;
+                scoreElement.textContent = Math.round(score * 10);
                 streakElement.textContent = streak;
                 nextQuestion();
                 startTime = Date.now();
             }
+        });
+
+        // Skip the current question
+        skipButton.addEventListener("click", () => {
+            score -= 10;
+            timeLeft -= 2;
+            logSession('skipped');
+            nextQuestion();
         });
 
         // Log session history
@@ -325,12 +352,17 @@
         // End the game
         function endGame() {
             clearInterval(timerInterval);
-            startButton.disabled = false;
-            answerInput.disabled = true;
+            questionElement.textContent = `Game Over! Final Score: ${Math.round(score * 10)}`;
             if (score > personalBest) {
                 personalBest = score;
                 personalBestElement.textContent = personalBest;
             }
+            if (streak > bestStreak) {
+                bestStreak = streak;
+                personalBestStreakElement.textContent = bestStreak;
+            }
+            startButton.disabled = false;
+            answerInput.disabled = true;
         }
 
         // Start button click
@@ -338,3 +370,4 @@
     </script>
 </body>
 </html>
+
