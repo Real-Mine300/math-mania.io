@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Math Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            width: 80%;
+            height: 90%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .main {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            background: #eaf3ff;
+        }
+
+        .log {
+            flex: 1;
+            background: #f8f9fc;
+            border-left: 2px solid #ccc;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .question {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 24px;
+            text-align: center;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .answer-input {
+            font-size: 20px;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            font-size: 20px;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .log-item {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .log-item.green { color: green; }
+        .log-item.yellow { color: yellow; }
+        .log-item.orange { color: orange; }
+        .log-item.red { color: red; }
+
+        .stats {
+            margin-top: 20px;
+        }
+
+        .stats-header {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .stat-item {
+            margin-bottom: 10px;
+        }
+
+        .btn-delete {
+            color: red;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            text-decoration: underline;
+        }
+
+        .upcoming {
+            font-size: 16px;
+            margin-top: 20px;
+            color: #555;
+        }
+
+        .bonus {
+            font-size: 20px;
+            color: green;
+            font-weight: bold;
+            text-align: center;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <div class="timer">Time Remaining: <span id="timer">60</span> seconds</div>
+            <div class="bonus" id="bonus">+1</div>
+            <div class="question" id="question">What is 5 + 3?</div>
+            <input type="number" id="answer" class="answer-input" placeholder="Your Answer">
+            <button class="btn" onclick="submitAnswer()">Submit</button>
+            <div class="upcoming" id="upcomingQuestions">Upcoming: 8 + 2, 15 - 6, 3 x 4</div>
+        </div>
+        <div class="log" id="log">
+            <div class="log-header">Question Log:</div>
+        </div>
+    </div>
+
+    <script>
+        let timer = 60;
+        let score = 0;
+        let currentQuestion = { question: "What is 5 + 3?", answer: 8 };
+        let upcomingQuestions = [];
+        let sessionStats = JSON.parse(localStorage.getItem("mentalMathStats")) || [];
+
+        function generateQuestion() {
+            const operations = ["+", "-", "*"];
+            const num1 = Math.floor(Math.random() * 20 + 1);
+            const num2 = Math.floor(Math.random() * 20 + 1);
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+
+            let questionText, answer;
+            if (operation === "+") {
+                questionText = `${num1} + ${num2}`;
+                answer = num1 + num2;
+            } else if (operation === "-") {
+                questionText = `${Math.max(num1, num2)} - ${Math.min(num1, num2)}`;
+                answer = Math.max(num1, num2) - Math.min(num1, num2);
+            } else {
+                questionText = `${num1} x ${num2}`;
+                answer = num1 * num2;
+            }
+            return { question: questionText, answer };
+        }
+
+        function updateQuestion() {
+            currentQuestion = upcomingQuestions.shift();
+            document.getElementById("question").textContent = currentQuestion.question;
+            upcomingQuestions.push(generateQuestion());
+            document.getElementById("upcomingQuestions").textContent = `Upcoming: ${upcomingQuestions
+                .slice(0, 3)
+                .map(q => q.question)
+                .join(", ")}`;
+        }
+
+        function submitAnswer() {
+            const answerInput = document.getElementById("answer");
+            const userAnswer = parseInt(answerInput.value);
+            const startTime = Date.now();
+
+            if (userAnswer === currentQuestion.answer) {
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                const log = document.createElement("div");
+                log.textContent = `${currentQuestion.question} = ${userAnswer} (${elapsedTime.toFixed(1)}s)`;
+
+                if (elapsedTime < 2) log.className = "log-item green";
+                else if (elapsedTime < 5) log.className = "log-item yellow";
+                else if (elapsedTime < 8) log.className = "log-item orange";
+                else log.className = "log-item red";
+
+                document.getElementById("log").prepend(log);
+                document.getElementById("bonus").style.visibility = "visible";
+                setTimeout(() => {
+                    document.getElementById("bonus").style.visibility = "hidden";
+                }, 1000);
+
+                timer++;
+                updateQuestion();
+                score++;
+            }
+
+            answerInput.value = "";
+        }
+
+        function startGame() {
+            for (let i = 0; i < 3; i++) {
+                upcomingQuestions.push(generateQuestion());
+            }
+            updateQuestion();
+            setInterval(() => {
+                if (timer > 0) {
+                    timer--;
+                    document.getElementById("timer").textContent = timer;
+                } else {
+                    alert("Game Over! Your score: " + score);
+                    sessionStats.push({ date: new Date(), score });
+                    if (sessionStats.length > 5) sessionStats.shift();
+                    localStorage.setItem("mentalMathStats", JSON.stringify(sessionStats));
+                    location.reload();
+                }
+            }, 1000);
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
