@@ -6,348 +6,361 @@
     <title>Mental Math Challenge</title>
     <style>
         body {
-            font-family: 'Comforta', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
-            background-color: #f4f4f9;
-            transition: background-color 0.3s ease;
         }
 
-        .game-container {
-            text-align: center;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 450px;
+        /* Main layout */
+        .container {
             display: flex;
-            flex-direction: column;
             justify-content: space-between;
-            position: relative;
+            width: 100%;
+            padding: 20px;
         }
 
-        h1 {
-            color: #333;
-        }
-
-        .score, .timer, .best-score, .streak, .best-streak {
-            font-size: 20px;
-            margin: 10px 0;
+        /* Game box on the left */
+        .game-box {
+            flex: 2;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
         }
 
         .question {
-            font-size: 28px;
-            margin: 20px 0;
+            font-size: 2rem;
+            margin-bottom: 20px;
         }
 
-        input[type="text"] {
-            width: 80%;
-            padding: 12px;
-            font-size: 18px;
-            border: 1px solid #ccc;
+        .timer, .score, .upcoming-questions {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .streak {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .answer-box {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input {
+            font-size: 1rem;
+            padding: 10px;
+            width: 60%;
+            border: 2px solid #ccc;
             border-radius: 5px;
         }
 
-        .btn, .restart-btn {
-            margin-top: 15px;
-            padding: 12px 20px;
-            background-color: #007BFF;
+        button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        .btn:hover, .restart-btn:hover {
-            background-color: #0056b3;
+        button:hover {
+            background-color: #45a049;
         }
 
-        .skip-btn {
-            margin-top: 10px;
-            padding: 12px 20px;
-            background-color: #f44336;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .skip-btn:hover {
-            background-color: #e53935;
-        }
-
-        .themes {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-        }
-
-        .log-history {
-            position: absolute;
-            right: 0;
-            top: 50px;
-            width: 200px;
-            text-align: left;
-            max-height: 300px;
+        /* Log box on the right */
+        .log-box {
+            flex: 1;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
-            font-size: 14px;
-            margin-left: 30px;
-            padding-left: 15px;
-            border-left: 2px solid #ccc;
+            height: 80%;
+            background-color: #fafafa; /* Added background for readability */
         }
 
-        .log-history p {
-            margin: 5px 0;
-            padding: 5px;
-            border-bottom: 1px solid #ddd;
+        .log-box ul {
+            padding: 0;
+            list-style-type: none;
         }
 
-        /* Color coding for different times */
-        .quick {
-            background-color: #d4edda; /* Green */
+        .log-box li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1.1rem;
         }
 
-        .fast {
-            background-color: #fff3cd; /* Yellow */
-        }
-
-        .some-time {
-            background-color: #ffecb3; /* Orange */
-        }
-
-        .slow {
-            background-color: #f8d7da; /* Red */
+        /* Background colors for log entries */
+        .correct {
+            background-color: #c8e6c9; /* Light green */
+            color: #388e3c;
         }
 
         .incorrect {
-            background-color: #f8d7da; /* Red */
-        }
-
-        .skipped {
-            background-color: #fff3cd; /* Yellow */
+            background-color: #ffccbc; /* Light red */
+            color: #d32f2f;
         }
 
         .timeout {
-            background-color: #f1c2c2; /* Light Red */
+            background-color: #ffeb3b; /* Yellow */
+            color: #f57c00;
         }
 
-        /* Theme styling */
-        body.dark-theme {
-            background-color: #333;
+        .skipped {
+            background-color: #ff7043; /* Tomato */
+            color: #d32f2f;
         }
 
-        .game-container.dark-theme {
-            background: #444;
+        .game-over {
+            background-color: #ff5722; /* Dark orange for Game Over */
             color: white;
+            font-weight: bold;
         }
 
-        body.blue-theme {
-            background-color: #e0f7fa;
+        /* Upcoming questions box */
+        .upcoming-box {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .game-container.blue-theme {
-            background: #b2ebf2;
-            color: #00796b;
+        .upcoming-box div {
+            flex: 1;
+            margin-right: 10px;
         }
 
-        body.green-theme {
-            background-color: #dcedc8;
+        /* Theme styles */
+        .light-mode {
+            background-color: #fff;
+            color: #333;
         }
 
-        .game-container.green-theme {
-            background: #c5e1a5;
-            color: #1b5e20;
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
         }
 
-        body.pink-theme {
-            background-color: #fce4ec;
+        .dark-mode .game-box {
+            background-color: #444; /* Darker grey for game box */
         }
 
-        .game-container.pink-theme {
-            background: #f8bbd0;
-            color: #880e4f;
+        .nature {
+            background-color: #a5d6a7;
+            color: #2e7d32;
         }
 
+        .ocean {
+            background-color: #81d4fa;
+            color: #0277bd;
+        }
+
+        .cosmos {
+            background-color: #3e1e7c;
+            color: #bb86fc;
+        }
+
+        .cosmos .game-box {
+            background-color: #5a2d8c; /* Lighter purple for the main box */
+        }
+
+        .desert {
+            background-color: #d7a86b;
+            color: #e64a19;
+        }
+
+        .light-mode .log-box {
+            background-color: #fff;
+        }
+
+        .dark-mode .log-box {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .nature .log-box {
+            background-color: #c8e6c9;
+        }
+
+        .ocean .log-box {
+            background-color: #b3e5fc;
+        }
+
+        .cosmos .log-box {
+            background-color: #6a1b9a;
+        }
+
+        .desert .log-box {
+            background-color: #fbe9e7;
+        }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>Mental Math Challenge</h1>
-        <div class="score">Score: <span id="score">0</span></div>
-        <div class="best-score">Best Score: <span id="personalBest">0</span></div>
-        <div class="streak">Streak: <span id="streak">0</span></div>
-        <div class="best-streak">Best Streak: <span id="personalBestStreak">0</span></div>
-        <div class="question" id="question">Press Start to Begin</div>
-        <input type="text" id="answerInput" placeholder="Your Answer" disabled>
-        <button class="btn" id="startButton">Start</button>
-        <button class="skip-btn" id="skipButton">Skip</button>
-        <button class="restart-btn" id="restartButton">Restart</button>
-
-        <div class="themes">
-            <label for="theme">Choose Theme: </label>
-            <select id="theme">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="pink">Pink</option>
+    <div class="container">
+        <div class="game-box">
+            <div class="question" id="question"></div>
+            <div class="streak" id="streak">Streak: 0</div>
+            <div class="timer" id="timer">Time: 10s</div>
+            <div class="score" id="score">Score: 0</div>
+            <div class="answer-box">
+                <input type="text" id="answer" placeholder="Your answer">
+                <button id="submit">Submit</button>
+            </div>
+            <select id="theme-selector" onchange="changeTheme(this.value)">
+                <option value="light-mode">Light Mode</option>
+                <option value="dark-mode">Dark Mode</option>
+                <option value="nature">Nature</option>
+                <option value="ocean">Ocean</option>
+                <option value="cosmos">Cosmos</option>
+                <option value="desert">Desert</option>
             </select>
         </div>
 
-        <div id="logHistory" class="log-history"></div>
+        <div class="log-box" id="log-box">
+            <div class="upcoming-box" id="upcoming-box">
+                <div id="upcoming"></div>
+            </div>
+            <h3>Log</h3>
+            <ul id="log-list"></ul>
+        </div>
     </div>
 
     <script>
-        const questionElement = document.getElementById("question");
-        const answerInput = document.getElementById("answerInput");
-        const scoreElement = document.getElementById("score");
-        const timeElement = document.getElementById("time");
-        const startButton = document.getElementById("startButton");
-        const skipButton = document.getElementById("skipButton");
-        const restartButton = document.getElementById("restartButton");
-        const themeSelector = document.getElementById("theme");
-        const personalBestElement = document.getElementById("personalBest");
-        const streakElement = document.getElementById("streak");
-        const personalBestStreakElement = document.getElementById("personalBestStreak");
-        const logHistoryElement = document.getElementById("logHistory");
-
         let score = 0;
-        let timeLeft = 10;
-        let currentQuestion = {};
         let streak = 0;
+        let bestScore = 0;
         let bestStreak = 0;
-        let personalBest = 0;
-        let sessionHistory = [];
+        let timeRemaining = 10;
+        let difficulty = 1;
+        let currentQuestion = {};
+        let log = [];
         let timerInterval;
-        let startTime;
 
-        // Change theme
-        themeSelector.addEventListener('change', (event) => {
-            document.body.className = event.target.value + '-theme';
-        });
+        // Themes
+        const themes = ['light-mode', 'dark-mode', 'nature', 'ocean', 'cosmos', 'desert'];
 
-        // Generate a math question (Addition, Subtraction, Multiplication, Division, Percentage)
-        function generateQuestion(difficulty) {
-            const num1 = Math.floor(Math.random() * difficulty) + 1;
-            const num2 = Math.floor(Math.random() * difficulty) + 1;
-            const operators = ["+", "-", "*", "/", "%"];
-            const operator = operators[Math.floor(Math.random() * operators.length)];
+        function changeTheme(theme) {
+            document.body.classList = theme;
+            document.getElementById("log-box").classList = theme + ' log-box'; // Change log background based on theme
+            updateUpcomingQuestions();  // Update the upcoming questions box to reflect theme
+        }
 
-            let questionText, answer;
+        // Generate random question
+        function generateQuestion() {
+            const operators = ['+', '-', '*'];
+            let num1 = Math.floor(Math.random() * (difficulty * 10)) + 1;
+            let num2 = Math.floor(Math.random() * (difficulty * 10)) + 1;
+            let operator = operators[Math.floor(Math.random() * operators.length)];
 
-            if (operator === "%") {
-                answer = (num1 / 100) * num2;
-                questionText = `${num1} is what percent of ${num2}?`;
-            } else if (operator === "/") {
-                answer = num2 !== 0 ? (num1 / num2) : num1;
-                questionText = `${num1} ÷ ${num2}`;
+            if (operator === '*' || operator === '+') {
+                currentQuestion = {
+                    question: `${num1} ${operator} ${num2}`,
+                    answer: eval(`${num1} ${operator} ${num2}`),
+                    operator: operator,
+                    difficulty: difficulty
+                };
+            } else if (operator === '-') {
+                currentQuestion = {
+                    question: `${num1} ${operator} ${num2}`,
+                    answer: num1 - num2,
+                    operator: operator,
+                    difficulty: difficulty
+                };
+            }
+            document.getElementById("question").innerHTML = currentQuestion.question;
+            updateUpcomingQuestions();
+        }
+
+        // Update upcoming questions list
+        function updateUpcomingQuestions() {
+            const upcomingList = document.getElementById("upcoming");
+            upcomingList.innerHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                const upcomingQuestion = document.createElement("div");
+                upcomingQuestion.innerHTML = `#${i}: ${currentQuestion.question}`;
+                upcomingList.appendChild(upcomingQuestion);
+            }
+        }
+
+        // Update timer every second
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    document.getElementById("timer").innerHTML = `Time: ${timeRemaining}s`;
+                } else {
+                    clearInterval(timerInterval);
+                    gameOver();
+                }
+            }, 1000);
+        }
+
+        // Check answer
+        function checkAnswer() {
+            let playerAnswer = parseInt(document.getElementById("answer").value);
+            let correct = playerAnswer === currentQuestion.answer;
+
+            if (correct) {
+                score += 10;
+                streak++;
+                log.push(`<li class="correct">Correct! (+10 points) - Time: ${timeRemaining}s - Streak: ${streak}</li>`);
             } else {
-                answer = eval(`${num1} ${operator} ${num2}`);
-                questionText = `${num1} ${operator} ${num2}`;
+                log.push(`<li class="incorrect">Incorrect. Time: ${timeRemaining}s</li>`);
+                streak = 0;
             }
 
-            return { questionText, answer };
+            if (streak > bestStreak) bestStreak = streak;
+            if (score > bestScore) bestScore = score;
+
+            updateLog();
+            generateQuestion();
         }
+
+        function gameOver() {
+            log.push(`<li class="game-over">Game Over! Final Score: ${score}</li>`);
+            updateLog();
+            clearInterval(timerInterval);
+            score = 0;
+            streak = 0;
+            timeRemaining = 10;
+            document.getElementById("streak").innerHTML = `Streak: 0`;
+            document.getElementById("score").innerHTML = `Score: 0`;
+            generateQuestion();
+        }
+
+        // Update log display
+        function updateLog() {
+            document.getElementById("log-list").innerHTML = log.join('');
+        }
+
+        // Handle submit
+        document.getElementById("submit").addEventListener("click", function() {
+            checkAnswer();
+            document.getElementById("answer").value = '';
+        });
+
+        // Handle Enter key
+        document.getElementById("answer").addEventListener("keypress", function(event) {
+            if (event.key === 'Enter') {
+                checkAnswer();
+                document.getElementById("answer").value = '';
+            }
+        });
 
         // Start the game
-        function startGame() {
-            score = 0;
-            timeLeft = 10;
-            streak = 0;
-            scoreElement.textContent = score;
-            timeElement.textContent = timeLeft;
-            streakElement.textContent = streak;
-            sessionHistory = []; // Reset session log
-
-            nextQuestion();
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 1000);
-            answerInput.disabled = false; // Enable input
-            answerInput.focus(); // Focus on the input
-        }
-
-        // Display the next question
-        function nextQuestion() {
-            const difficulty = Math.floor(score / 5) + 10;
-            currentQuestion = generateQuestion(difficulty);
-            questionElement.textContent = currentQuestion.questionText;
-            answerInput.value = ""; // Reset the input field
-            answerInput.focus(); // Focus on the input for the next question
-        }
-
-        // Update the timer
-        function updateTimer() {
-            timeLeft--;
-            timeElement.textContent = `Time Left: ${timeLeft}s`; // Show timer
-
-            if (timeLeft <= 0) {
-                endGame();
-            }
-        }
-
-        // Check the user's answer
-        answerInput.addEventListener("input", (event) => {
-            if (event.key === "Enter" && answerInput.value.trim() !== "") {
-                const userAnswer = parseFloat(answerInput.value);
-                const timeTaken = (Date.now() - startTime) / 1000; // Time taken in seconds
-
-                if (userAnswer === currentQuestion.answer) {
-                    score = Math.max(0, score + Math.round(timeLeft * 10)); // Prevent negative score
-                    streak++;
-                    if (streak > bestStreak) bestStreak = streak;
-                    sessionHistory.push({ result: 'correct', timeTaken, points: Math.round(timeLeft * 10) });
-                } else {
-                    streak = 0;
-                    sessionHistory.push({ result: 'incorrect', timeTaken, points: 0 });
-                }
-
-                scoreElement.textContent = score;
-                streakElement.textContent = streak;
-                personalBestElement.textContent = personalBest;
-                personalBestStreakElement.textContent = bestStreak;
-
-                nextQuestion();
-                answerInput.value = ""; // Reset input
-            }
-        });
-
-        // Skip the current question
-        skipButton.addEventListener("click", () => {
-            score = Math.max(0, score - 10); // Deduct 10 points but prevent negative score
-            timeLeft -= 2; // Deduct 2 seconds for skipping
-            sessionHistory.push({ result: 'skipped', timeTaken: 0, points: -10 });
-
-            scoreElement.textContent = score;
-            nextQuestion();
-        });
-
-        // Restart the game
-        restartButton.addEventListener("click", () => {
-            startGame(); // Restart game
-        });
-
-        // End the game
-        function endGame() {
-            clearInterval(timerInterval);
-            questionElement.textContent = `Game Over! Final Score: ${score}`;
-            if (score > personalBest) {
-                personalBest = score;
-                personalBestElement.textContent = personalBest;
-            }
-            if (streak > bestStreak) {
-                bestStreak = streak;
-                personalBestStreakElement.textContent = bestStreak;
-            }
-            answerInput.disabled = true; // Disable input
-            startButton.disabled = false; // Enable start button
-        }
-
-        // Start button click
-        startButton.addEventListener("click", startGame);
+        generateQuestion();
+        startTimer();
     </script>
 </body>
 </html>
