@@ -52,12 +52,17 @@
             margin-top: 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+        
+        .answer-box button{
+			margin-left: 2px;
         }
 
         input {
             font-size: 1rem;
             padding: 10px;
-            width: 60%;
+            width: 50%;
             border: 2px solid #ccc;
             border-radius: 5px;
         }
@@ -85,13 +90,42 @@
             overflow-y: auto;
             height: 80%;
             background-color: #fafafa; /* Added background for readability */
+            display: flex;
+            flex-direction: column; /* Stack upcoming questions and log */
         }
 
-        .log-box ul {
+        /* Upcoming questions section */
+        .upcoming-box {
+            background-color: #f9f9f9;
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upcoming-box div {
+            margin-bottom: 5px;
+        }
+
+        /* Header for the log */
+        h3 {
+            margin-top: 5px;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Log list styling */
+        #log-list {
             padding: 0;
             list-style-type: none;
+            overflow-y: auto;
+            flex-grow: 1; /* Ensure log takes available space */
         }
 
+        /* Log item styling */
         .log-box li {
             margin-bottom: 10px;
             padding: 10px;
@@ -124,21 +158,6 @@
             background-color: #ff5722; /* Dark orange for Game Over */
             color: white;
             font-weight: bold;
-        }
-
-        /* Upcoming questions box */
-        .upcoming-box {
-            background-color: #f9f9f9;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .upcoming-box div {
-            flex: 1;
-            margin-right: 10px;
         }
 
         /* Theme styles */
@@ -213,10 +232,13 @@
             <div class="streak" id="streak">Streak: 0</div>
             <div class="timer" id="timer">Time: 10s</div>
             <div class="score" id="score">Score: 0</div>
-            <div class="answer-box">
+            <div class="answer-box" style="padding-left">
                 <input type="text" id="answer" placeholder="Your answer">
+                <button id="reset">Reset</button>
+                <button id="skip">Skip</button>
                 <button id="submit">Submit</button>
             </div>
+            <br>
             <select id="theme-selector" onchange="changeTheme(this.value)">
                 <option value="light-mode">Light Mode</option>
                 <option value="dark-mode">Dark Mode</option>
@@ -225,11 +247,17 @@
                 <option value="cosmos">Cosmos</option>
                 <option value="desert">Desert</option>
             </select>
+            <div class="best-scores">
+                <p>Best Score: <span id="best-score">0</span></p>
+                <p>Best Streak: <span id="best-streak">0</span></p>
+            </div>
         </div>
 
         <div class="log-box" id="log-box">
             <div class="upcoming-box" id="upcoming-box">
-                <div id="upcoming"></div>
+                <div id="upcoming-1"></div>
+                <div id="upcoming-2"></div>
+                <div id="upcoming-3"></div>
             </div>
             <h3>Log</h3>
             <ul id="log-list"></ul>
@@ -256,6 +284,21 @@
             updateUpcomingQuestions();  // Update the upcoming questions box to reflect theme
         }
 
+		// Function to update the best score and best streak
+        function updateBestScores() {
+            // Check if the current score or streak is better than the stored best score or streak
+            if (score > bestScore) {
+                bestScore = score; // Update best score
+                document.getElementById("best-score").textContent = bestScore; // Update display
+            }
+
+            if (streak > bestStreak) {
+                bestStreak = streak; // Update best streak
+                document.getElementById("best-streak").textContent = bestStreak; // Update display
+            }
+        }
+
+        
         // Generate random question
         function generateQuestion() {
             const operators = ['+', '-', '*'];
@@ -284,13 +327,18 @@
 
         // Update upcoming questions list
         function updateUpcomingQuestions() {
-            const upcomingList = document.getElementById("upcoming");
-            upcomingList.innerHTML = '';
-            for (let i = 1; i <= 3; i++) {
-                const upcomingQuestion = document.createElement("div");
-                upcomingQuestion.innerHTML = `#${i}: ${currentQuestion.question}`;
-                upcomingList.appendChild(upcomingQuestion);
-            }
+            const upcoming1 = document.getElementById("upcoming-1");
+            const upcoming2 = document.getElementById("upcoming-2");
+            const upcoming3 = document.getElementById("upcoming-3");
+
+            // Generate and display different questions for upcoming
+            let upcomingQ1 = `${Math.floor(Math.random() * (difficulty * 10)) + 1} + ${Math.floor(Math.random() * (difficulty * 10)) + 1}`;
+            let upcomingQ2 = `${Math.floor(Math.random() * (difficulty * 10)) + 1} - ${Math.floor(Math.random() * (difficulty * 10)) + 1}`;
+            let upcomingQ3 = `${Math.floor(Math.random() * (difficulty * 10)) + 1} * ${Math.floor(Math.random() * (difficulty * 10)) + 1}`;
+
+            upcoming1.textContent = `1. ${upcomingQ1}`;
+            upcoming2.textContent = `2. ${upcomingQ2}`;
+            upcoming3.textContent = `3. ${upcomingQ3}`;
         }
 
         // Update timer every second
@@ -314,23 +362,31 @@
             if (correct) {
                 score += 10;
                 streak++;
+                timeRemaining += Math.round(timeRemaining/10 + 1);
                 log.push(`<li class="correct">Correct! (+10 points) - Time: ${timeRemaining}s - Streak: ${streak}</li>`);
             } else {
                 log.push(`<li class="incorrect">Incorrect. Time: ${timeRemaining}s</li>`);
                 streak = 0;
             }
 
-            if (streak > bestStreak) bestStreak = streak;
-            if (score > bestScore) bestScore = score;
-
+			updateBestScores();
             updateLog();
             generateQuestion();
         }
 
+		// Disable input and submit button after time's up
         function gameOver() {
             log.push(`<li class="game-over">Game Over! Final Score: ${score}</li>`);
             updateLog();
             clearInterval(timerInterval);
+
+            // Disable input and buttons after time's up
+            document.getElementById("answer").disabled = true;
+            document.getElementById("submit").disabled = true;
+            // Change color for Submit and Skip buttons
+            document.getElementById("submit").style.backgroundColor = "#D32F2F";  // Red color
+            document.getElementById("skip").style.backgroundColor = "#D32F2F";  // Red color
+
             score = 0;
             streak = 0;
             timeRemaining = 10;
@@ -338,7 +394,6 @@
             document.getElementById("score").innerHTML = `Score: 0`;
             generateQuestion();
         }
-
         // Update log display
         function updateLog() {
             document.getElementById("log-list").innerHTML = log.join('');
@@ -350,6 +405,29 @@
             document.getElementById("answer").value = '';
         });
 
+        // Handle reset button
+        document.getElementById("reset").addEventListener("click", function() {
+        	updateBestScores(); // Update Best Scores
+            score = 0;
+            streak = 0;
+            timeRemaining = 10;
+            log = [];
+            document.getElementById("streak").innerHTML = `Streak: 0`;
+            document.getElementById("score").innerHTML = `Score: 0`;
+            document.getElementById("timer").innerHTML = `Time: 10s`;
+            generateQuestion();  // Reset to the first question
+            updateLog();  // Clear the log
+            startTimer();  // Restart the timer
+        });
+
+        // Handle skip button
+        document.getElementById("skip").addEventListener("click", function() {
+            // Skip the current question
+            log.push(`<li class="skipped">Skipped. Time: ${timeRemaining}s</li>`);
+            updateLog();
+            generateQuestion();  // Move to the next question
+        });
+
         // Handle Enter key
         document.getElementById("answer").addEventListener("keypress", function(event) {
             if (event.key === 'Enter') {
@@ -358,7 +436,28 @@
             }
         });
 
-        // Start the game
+        // Re-enable input and submit button after reset
+        document.getElementById("reset").addEventListener("click", function() {
+          updateBestScores(); // Update Best Scores
+          score = 0;
+          streak = 0;
+          timeRemaining = 10;
+          log = [];
+          document.getElementById("streak").innerHTML = `Streak: 0`;
+          document.getElementById("score").innerHTML = `Score: 0`;
+          document.getElementById("timer").innerHTML = `Time: 10s`;
+          generateQuestion();  // Reset to the first question
+          updateLog();  // Clear the log
+          startTimer();  // Restart the timer
+
+          // Enable input and buttons after reset
+          document.getElementById("answer").disabled = false;
+          document.getElementById("submit").disabled = false;
+    	  // Revert button colors after reset
+    	  document.getElementById("submit").style.backgroundColor = "#4CAF50";  // Green color
+         document.getElementById("skip").style.backgroundColor = "#4CAF50";  // Green color
+        });
+		// Start the game
         generateQuestion();
         startTimer();
     </script>
