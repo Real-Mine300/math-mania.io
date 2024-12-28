@@ -363,7 +363,7 @@
                 score += 10;
                 streak++;
                 timeRemaining += Math.round(timeRemaining/10 + 1);
-                log.push(`<li class="correct">Correct! (+10 points) - Time: ${timeRemaining}s - Streak: ${streak}</li>`);
+				log.push(`<li class="correct">Correct! (+10 points, +${Math.round(timeRemaining / 5 + 1)}s) - Time: ${timeRemaining}s - Streak: ${streak}</li>`);
             } else {
                 log.push(`<li class="incorrect">Incorrect. Time: ${timeRemaining}s</li>`);
                 streak = 0;
