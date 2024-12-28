@@ -270,6 +270,7 @@
         let bestScore = 0;
         let bestStreak = 0;
         let timeRemaining = 10;
+		let questionStartTime;
         let difficulty = 1;
         let currentQuestion = {};
         let log = [];
@@ -301,6 +302,7 @@
         
         // Generate random question
         function generateQuestion() {
+		    questionStartTime = Date.now(); // Log the current time in milliseconds
             const operators = ['+', '-', '*'];
             let num1 = Math.floor(Math.random() * (difficulty * 10)) + 1;
             let num2 = Math.floor(Math.random() * (difficulty * 10)) + 1;
@@ -358,12 +360,13 @@
         function checkAnswer() {
             let playerAnswer = parseInt(document.getElementById("answer").value);
             let correct = playerAnswer === currentQuestion.answer;
+		    let timeSpent = Math.round((Date.now() - questionStartTime) / 1000); // Calculate time spent in seconds
 
             if (correct) {
                 score += 10;
                 streak++;
                 timeRemaining += Math.round(timeRemaining/10 + 1);
-				log.push(`<li class="correct">Correct! (+10 points, +${Math.round(timeRemaining / 5 + 1)}s) - Time: ${timeRemaining}s - Streak: ${streak}</li>`);
+				log.push(`<li class="correct">Correct! (+10 points, +${Math.round(timeRemaining / 5 + 1)}s) - Spent: ${timeSpent}s - Streak: ${streak}</li>`);
             } else {
                 log.push(`<li class="incorrect">Incorrect. Time: ${timeRemaining}s</li>`);
                 streak = 0;
