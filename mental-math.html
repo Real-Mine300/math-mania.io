@@ -366,9 +366,9 @@
                 score += 10;
                 streak++;
                 timeRemaining += Math.round(timeRemaining/10 + 1);
-				log.push(`<li class="correct">Correct! (+10 points, +${Math.round(timeRemaining / 5 + 1)}s) - Spent: ${timeSpent}s - Streak: ${streak}</li>`);
+				log.push(`<li class="correct">Correct! (+10 points, +${Math.round(timeRemaining / 10 + 1)}s) - Spent: ${timeSpent}s - Streak: ${streak}</li>`);
             } else {
-                log.push(`<li class="incorrect">Incorrect. Time: ${timeRemaining}s</li>`);
+                log.push(`<li class="incorrect">Incorrect. Spent: ${timeSpent}s</li>`);
                 streak = 0;
             }
 
@@ -425,6 +425,7 @@
 
         // Handle skip button
         document.getElementById("skip").addEventListener("click", function() {
+    		let timeSpent = Math.round((Date.now() - questionStartTime) / 1000); // Calculate time spent
             // Skip the current question
             log.push(`<li class="skipped">Skipped. Time: ${timeRemaining}s</li>`);
             updateLog();
