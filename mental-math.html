@@ -233,7 +233,7 @@
             <div class="timer" id="timer">Time: 10s</div>
             <div class="score" id="score">Score: 0</div>
             <div class="answer-box" style="padding-left">
-                <input type="text" id="answer" placeholder="Your answer">
+                <input type="number" id="answer" placeholder="Your answer">
                 <button id="reset">Reset</button>
                 <button id="skip">Skip</button>
                 <button id="submit">Submit</button>
@@ -381,7 +381,7 @@
         function gameOver() {
             log.push(`<li class="game-over">Game Over! Final Score: ${score}</li>`);
             updateLog();
-            clearInterval(timerInterval);
+			if (timerInterval) clearInterval(timerInterval);
 
             // Disable input and buttons after time's up
             document.getElementById("answer").disabled = true;
@@ -411,6 +411,7 @@
         // Handle reset button
         document.getElementById("reset").addEventListener("click", function() {
         	updateBestScores(); // Update Best Scores
+			if (timerInterval) clearInterval(timerInterval);
             score = 0;
             streak = 0;
             timeRemaining = 10;
