@@ -236,6 +236,7 @@
             <div class="streak" id="streak">Streak: 0</div>
             <div class="timer" id="timer">Time: 10s</div>
             <div class="score" id="score">Score: 0</div>
+            <div class="difficulty" id="difficulty">Difficulty: 1</div>
 
             <!-- Answer Input & Buttons -->
             <div class="answer-box">
@@ -255,17 +256,30 @@
 
             <br>
 
-            <!-- Problem Type Selection (Only for Practice Mode) -->
-            <label for="problem-type">Select Problem Type (Practice Mode Only):</label>
-            <select id="problem-type">
-                <option value="mixed">Mixed</option>
-                <option value="addition">Addition</option>
-                <option value="subtraction">Subtraction</option>
-                <option value="multiplication">Multiplication</option>
-                <option value="division">Division</option>
-            </select>
+            <!-- Practice Mode Customization -->
+            <div id="practice-settings">
+                <h3>Practice Mode Settings:</h3>
 
-            <br><br>
+                <label for="practice-difficulty">Difficulty (1-10):</label>
+                <input type="number" id="practice-difficulty" min="1" max="10" value="1">
+
+                <label for="practice-time">Time Limit (5-60s):</label>
+                <input type="number" id="practice-time" min="5" max="60" value="10">
+
+                <label for="practice-type">Problem Type:</label>
+                <select id="practice-type">
+                    <option value="mixed">Mixed</option>
+                    <option value="+">Addition</option>
+                    <option value="-">Subtraction</option>
+                    <option value="*">Multiplication</option>
+                    <option value="/">Division</option>
+                    <option value="^2">Squares</option>
+                    <option value="^3">Cubes</option>
+                    <option value="√">Square Roots</option>
+                </select>
+            </div>
+
+            <br>
 
             <!-- Theme Selection -->
             <label for="theme-selector">Select Theme:</label>
@@ -278,7 +292,7 @@
                 <option value="desert">Desert</option>
             </select>
 
-            <!-- Leaderboard Display -->
+            <!-- Best Score & Streak -->
             <div class="best-scores">
                 <p>Best Score: <span id="best-score">0</span></p>
                 <p>Best Streak: <span id="best-streak">0</span></p>
@@ -299,207 +313,180 @@
             <ul id="log-list"></ul>
         </div>
     </div>
+
     <script>
-        let score = 0;
-        let streak = 0;
-        let bestScore = 0;
-        let bestStreak = 0;
-        let timeRemaining = 10;
-		let questionStartTime;
-        let difficulty = 1;
-        let currentQuestion = {};
-        let log = [];
-        let timerInterval;
+// Game Variables
+let score = 0, streak = 0, timeRemaining = 10, difficulty = 1;
+let bestScore = localStorage.getItem("bestScore") || 0;
+let bestStreak = localStorage.getItem("bestStreak") || 0;
+let log = [], timerInterval, currentQuestion = {};
+let questionStartTime, skipCount = 0;
+let gameRunning = false; // Prevents mode switching mid-run
+let gameMode = localStorage.getItem("gameMode") || "challenge"; // Load saved mode
+let practiceSettings = { difficulty: 1, timeLimit: 10, problemType: "mixed" };
 
-        // Themes
-        const themes = ['light-mode', 'dark-mode', 'nature', 'ocean', 'cosmos', 'desert'];
+// Load stored best scores
+document.getElementById("best-score").textContent = bestScore;
+document.getElementById("best-streak").textContent = bestStreak;
 
-        function changeTheme(theme) {
-            document.body.classList = theme;
-            document.getElementById("log-box").classList = theme + ' log-box'; // Change log background based on theme
-            updateUpcomingQuestions();  // Update the upcoming questions box to reflect theme
+// Function to generate a random math problem
+function generateQuestion() {
+    questionStartTime = Date.now();
+    document.getElementById("answer").disabled = false; // Re-enable input
+
+    let num1, num2, operator;
+    
+    // Get difficulty based on game mode
+    let effectiveDifficulty = gameMode === "practice" ? practiceSettings.difficulty 
+        : Math.min(10, difficulty + Math.floor(score / 50));
+
+    // Choose problem type
+    let allowedOperators = gameMode === "practice" && practiceSettings.problemType !== "mixed" 
+        ? [practiceSettings.problemType]
+        : ["+", "-", "*", "/", "^2", "^3", "√"];
+
+    operator = allowedOperators[Math.floor(Math.random() * allowedOperators.length)];
+
+    num1 = Math.floor(Math.random() * (effectiveDifficulty * 5)) + 2;
+    num2 = Math.floor(Math.random() * (effectiveDifficulty * 5)) + 1;
+
+    // Ensure valid division and prevent negatives in early levels
+    if (operator === "-") {
+        if (num1 < num2) [num1, num2] = [num2, num1]; // Swap to prevent negatives early on
+    } else if (operator === "/") {
+        num1 = num2 * (Math.floor(Math.random() * 5) + 1); // Ensure clean division
+    } else if (operator === "^2") {
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = 2;
+    } else if (operator === "^3") {
+        num1 = Math.floor(Math.random() * 5) + 1;
+        num2 = 3;
+    } else if (operator === "√") {
+        num1 = (Math.floor(Math.random() * 10) + 1) ** 2; // Ensure perfect squares
+        num2 = 0;
+    }
+
+    let answer = operator === "^2" ? num1 ** 2
+              : operator === "^3" ? num1 ** 3
+              : operator === "√" ? Math.sqrt(num1)
+              : eval(`${num1} ${operator} ${num2}`);
+
+    currentQuestion = { question: operator === "√" ? `√${num1}` : `${num1} ${operator} ${num2}`, answer };
+    document.getElementById("question").innerHTML = currentQuestion.question;
+    document.getElementById("difficulty").innerHTML = `Difficulty: ${effectiveDifficulty}`;
+}
+
+// Function to start the timer
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (timeRemaining > 0) {
+            timeRemaining--;
+            document.getElementById("timer").innerHTML = `Time: ${timeRemaining}s`;
+        } else {
+            clearInterval(timerInterval);
+            gameOver();
         }
+    }, 1000);
+}
 
-		// Function to update the best score and best streak
-        function updateBestScores() {
-            // Check if the current score or streak is better than the stored best score or streak
-            if (score > bestScore) {
-                bestScore = score; // Update best score
-                document.getElementById("best-score").textContent = bestScore; // Update display
-            }
+// Function to check the answer with Combo System
+function checkAnswer() {
+    document.getElementById("answer").disabled = true; // Prevent multiple submissions
+    let playerAnswer = parseFloat(document.getElementById("answer").value);
+    let correct = playerAnswer === currentQuestion.answer;
+    let timeSpent = Math.round((Date.now() - questionStartTime) / 1000);
+    
+    let points = timeSpent < 2 ? 15
+              : timeSpent < 5 ? 12
+              : timeSpent < 8 ? 10
+              : timeSpent < 12 ? 8
+              : timeSpent < 15 ? 5
+              : 2; // Minimum points if slow
 
-            if (streak > bestStreak) {
-                bestStreak = streak; // Update best streak
-                document.getElementById("best-streak").textContent = bestStreak; // Update display
-            }
-        }
+    if (correct) {
+        score += points;
+        streak++;
 
-        
-        // Generate random question
-        function generateQuestion() {
-		    questionStartTime = Date.now(); // Log the current time in milliseconds
-            const operators = ['+', '-', '*'];
-            let num1 = Math.floor(Math.random() * (difficulty * 10)) + 1;
-            let num2 = Math.floor(Math.random() * (difficulty * 10)) + 1;
-            let operator = operators[Math.floor(Math.random() * operators.length)];
+        // Faster difficulty scaling
+        if (streak >= 20) difficulty += 0.3;
+        else if (streak >= 10) difficulty += 0.2;
+        else difficulty += 0.1;
 
-            if (operator === '*' || operator === '+') {
-                currentQuestion = {
-                    question: `${num1} ${operator} ${num2}`,
-                    answer: eval(`${num1} ${operator} ${num2}`),
-                    operator: operator,
-                    difficulty: difficulty
-                };
-            } else if (operator === '-') {
-                currentQuestion = {
-                    question: `${num1} ${operator} ${num2}`,
-                    answer: num1 - num2,
-                    operator: operator,
-                    difficulty: difficulty
-                };
-            }
-            document.getElementById("question").innerHTML = currentQuestion.question;
-            updateUpcomingQuestions();
-        }
+        timeRemaining += Math.max(1, Math.round(timeRemaining / 10));
+        log.push(`<li class="correct">✔ Correct! (+${points} points, +${Math.round(timeRemaining / 10)}s) - Spent: ${timeSpent}s - Streak: ${streak}</li>`);
+    } else {
+        log.push(`<li class="incorrect">✘ Incorrect. Spent: ${timeSpent}s</li>`);
+        streak = 0;
+    }
 
-        // Update upcoming questions list
-        function updateUpcomingQuestions() {
-            const upcoming1 = document.getElementById("upcoming-1");
-            const upcoming2 = document.getElementById("upcoming-2");
-            const upcoming3 = document.getElementById("upcoming-3");
+    updateBestScores();
+    updateLog();
+    generateQuestion();
+}
 
-            // Generate and display different questions for upcoming
-            let upcomingQ1 = `${Math.floor(Math.random() * (difficulty * 10)) + 1} + ${Math.floor(Math.random() * (difficulty * 10)) + 1}`;
-            let upcomingQ2 = `${Math.floor(Math.random() * (difficulty * 10)) + 1} - ${Math.floor(Math.random() * (difficulty * 10)) + 1}`;
-            let upcomingQ3 = `${Math.floor(Math.random() * (difficulty * 10)) + 1} * ${Math.floor(Math.random() * (difficulty * 10)) + 1}`;
+// Function to apply skip penalty
+function applySkipPenalty() {
+    let penalty = skipCount < 2 ? 0 : skipCount < 5 ? -5 : -10;
+    if (penalty < 0) {
+        score += penalty;
+        log.push(`<li class="skipped">⚠ Skipped! Penalty: ${penalty} points</li>`);
+    } else {
+        log.push(`<li class="skipped">➡ Skipped without penalty</li>`);
+    }
+}
 
-            upcoming1.textContent = `1. ${upcomingQ1}`;
-            upcoming2.textContent = `2. ${upcomingQ2}`;
-            upcoming3.textContent = `3. ${upcomingQ3}`;
-        }
+// Function to update best scores and store them
+function updateBestScores() {
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("bestScore", bestScore);
+        document.getElementById("best-score").textContent = bestScore;
+    }
+    if (streak > bestStreak) {
+        bestStreak = streak;
+        localStorage.setItem("bestStreak", bestStreak);
+        document.getElementById("best-streak").textContent = bestStreak;
+    }
+}
 
-        // Update timer every second
-        function startTimer() {
-            timerInterval = setInterval(function() {
-                if (timeRemaining > 0) {
-                    timeRemaining--;
-                    document.getElementById("timer").innerHTML = `Time: ${timeRemaining}s`;
-                } else {
-                    clearInterval(timerInterval);
-                    gameOver();
-                }
-            }, 1000);
-        }
+// Function to reset the game
+function resetGame() {
+    gameRunning = true; // Lock mode switching
+    score = 0;
+    streak = 0;
+    difficulty = 1;
+    skipCount = 0;
+    timeRemaining = gameMode === "practice" ? practiceSettings.timeLimit : 10;
+    log = [];
 
-        // Check answer
-        function checkAnswer() {
-            let playerAnswer = parseInt(document.getElementById("answer").value);
-            let correct = playerAnswer === currentQuestion.answer;
-		    let timeSpent = Math.round((Date.now() - questionStartTime) / 1000); // Calculate time spent in seconds
+    document.getElementById("streak").textContent = `Streak: 0`;
+    document.getElementById("score").textContent = `Score: 0`;
+    document.getElementById("timer").textContent = `Time: ${timeRemaining}s`;
 
-            if (correct) {
-                score += 10;
-                streak++;
-                timeRemaining += Math.round(timeRemaining/10 + 1);
-				log.push(`<li class="correct">Correct! (+10 points, +${Math.round(timeRemaining / 10 + 1)}s) - Spent: ${timeSpent}s - Streak: ${streak}</li>`);
-            } else {
-                log.push(`<li class="incorrect">Incorrect. Spent: ${timeSpent}s</li>`);
-                streak = 0;
-            }
+    document.getElementById("answer").disabled = false;
+    document.getElementById("submit").disabled = false;
 
-			updateBestScores();
-            updateLog();
-            generateQuestion();
-        }
+    generateQuestion();
+    if (gameMode !== "practice") startTimer();
+}
 
-		// Disable input and submit button after time's up
-        function gameOver() {
-            log.push(`<li class="game-over">Game Over! Final Score: ${score}</li>`);
-            updateLog();
-			if (timerInterval) clearInterval(timerInterval);
+// Function to change the game mode and save it
+function changeGameMode(mode) {
+    if (gameRunning) return; // Prevent changing modes mid-run
+    gameMode = mode;
+    localStorage.setItem("gameMode", mode);
+    resetGame();
+}
 
-            // Disable input and buttons after time's up
-            document.getElementById("answer").disabled = true;
-            document.getElementById("submit").disabled = true;
-            // Change color for Submit and Skip buttons
-            document.getElementById("submit").style.backgroundColor = "#D32F2F";  // Red color
-            document.getElementById("skip").style.backgroundColor = "#D32F2F";  // Red color
+// Game Mode Buttons
+document.getElementById("challenge-mode").addEventListener("click", () => changeGameMode("challenge"));
+document.getElementById("endless-mode").addEventListener("click", () => changeGameMode("endless"));
+document.getElementById("practice-mode").addEventListener("click", () => changeGameMode("practice"));
 
-            score = 0;
-            streak = 0;
-            timeRemaining = 10;
-            document.getElementById("streak").innerHTML = `Streak: 0`;
-            document.getElementById("score").innerHTML = `Score: 0`;
-            generateQuestion();
-        }
-        // Update log display
-        function updateLog() {
-            document.getElementById("log-list").innerHTML = log.join('');
-        }
-
-        // Handle submit
-        document.getElementById("submit").addEventListener("click", function() {
-            checkAnswer();
-            document.getElementById("answer").value = '';
-        });
-
-        // Handle reset button
-        document.getElementById("reset").addEventListener("click", function() {
-        	updateBestScores(); // Update Best Scores
-			if (timerInterval) clearInterval(timerInterval);
-            score = 0;
-            streak = 0;
-            timeRemaining = 10;
-            log = [];
-            document.getElementById("streak").innerHTML = `Streak: 0`;
-            document.getElementById("score").innerHTML = `Score: 0`;
-            document.getElementById("timer").innerHTML = `Time: 10s`;
-            generateQuestion();  // Reset to the first question
-            updateLog();  // Clear the log
-            startTimer();  // Restart the timer
-        });
-
-        // Handle skip button
-        document.getElementById("skip").addEventListener("click", function() {
-    		let timeSpent = Math.round((Date.now() - questionStartTime) / 1000); // Calculate time spent
-            // Skip the current question
-            log.push(`<li class="skipped">Skipped. Time: ${timeRemaining}s</li>`);
-            updateLog();
-            generateQuestion();  // Move to the next question
-        });
-
-        // Handle Enter key
-        document.getElementById("answer").addEventListener("keypress", function(event) {
-            if (event.key === 'Enter') {
-                checkAnswer();
-                document.getElementById("answer").value = '';
-            }
-        });
-
-        // Re-enable input and submit button after reset
-        document.getElementById("reset").addEventListener("click", function() {
-          updateBestScores(); // Update Best Scores
-          score = 0;
-          streak = 0;
-          timeRemaining = 10;
-          log = [];
-          document.getElementById("streak").innerHTML = `Streak: 0`;
-          document.getElementById("score").innerHTML = `Score: 0`;
-          document.getElementById("timer").innerHTML = `Time: 10s`;
-          generateQuestion();  // Reset to the first question
-          updateLog();  // Clear the log
-          startTimer();  // Restart the timer
-
-          // Enable input and buttons after reset
-          document.getElementById("answer").disabled = false;
-          document.getElementById("submit").disabled = false;
-    	  // Revert button colors after reset
-    	  document.getElementById("submit").style.backgroundColor = "#4CAF50";  // Green color
-         document.getElementById("skip").style.backgroundColor = "#4CAF50";  // Green color
-        });
-		// Start the game
-        generateQuestion();
-        startTimer();
+// Start the game
+generateQuestion();
+startTimer();
     </script>
 </body>
 </html>
