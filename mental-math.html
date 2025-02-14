@@ -227,18 +227,48 @@
 </head>
 <body>
     <div class="container">
+        <!-- Game Box (Left Side) -->
         <div class="game-box">
+            <h1>Mental Math Challenge</h1>
+            
+            <!-- Math Problem Display -->
             <div class="question" id="question"></div>
             <div class="streak" id="streak">Streak: 0</div>
             <div class="timer" id="timer">Time: 10s</div>
             <div class="score" id="score">Score: 0</div>
-            <div class="answer-box" style="padding-left">
+
+            <!-- Answer Input & Buttons -->
+            <div class="answer-box">
                 <input type="number" id="answer" placeholder="Your answer">
                 <button id="reset">Reset</button>
                 <button id="skip">Skip</button>
                 <button id="submit">Submit</button>
             </div>
+
             <br>
+
+            <!-- Game Mode Selection -->
+            <h3>Select Game Mode:</h3>
+            <button id="challenge-mode">Challenge Mode</button>
+            <button id="endless-mode">Endless Mode</button>
+            <button id="practice-mode">Practice Mode</button>
+
+            <br>
+
+            <!-- Problem Type Selection (Only for Practice Mode) -->
+            <label for="problem-type">Select Problem Type (Practice Mode Only):</label>
+            <select id="problem-type">
+                <option value="mixed">Mixed</option>
+                <option value="addition">Addition</option>
+                <option value="subtraction">Subtraction</option>
+                <option value="multiplication">Multiplication</option>
+                <option value="division">Division</option>
+            </select>
+
+            <br><br>
+
+            <!-- Theme Selection -->
+            <label for="theme-selector">Select Theme:</label>
             <select id="theme-selector" onchange="changeTheme(this.value)">
                 <option value="light-mode">Light Mode</option>
                 <option value="dark-mode">Dark Mode</option>
@@ -247,23 +277,28 @@
                 <option value="cosmos">Cosmos</option>
                 <option value="desert">Desert</option>
             </select>
+
+            <!-- Leaderboard Display -->
             <div class="best-scores">
                 <p>Best Score: <span id="best-score">0</span></p>
                 <p>Best Streak: <span id="best-streak">0</span></p>
             </div>
         </div>
 
+        <!-- Log Box (Right Side) -->
         <div class="log-box" id="log-box">
+            <!-- Upcoming Questions Preview -->
             <div class="upcoming-box" id="upcoming-box">
                 <div id="upcoming-1"></div>
                 <div id="upcoming-2"></div>
                 <div id="upcoming-3"></div>
             </div>
+
+            <!-- Log History -->
             <h3>Log</h3>
             <ul id="log-list"></ul>
         </div>
     </div>
-
     <script>
         let score = 0;
         let streak = 0;
